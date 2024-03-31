@@ -32,7 +32,7 @@ export class GptController {
     res.setHeader( 'Content-Type', 'application/json' );
     res.status( HttpStatus.OK );
     for await( const chunk of stream ) {
-      const piece = chunk.choices[0].delta.content || '';
+      const piece = chunk.choices[0].delta.content || '';
       res.write(piece);
     }
     res.end();
