@@ -1,10 +1,10 @@
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class OrthographyDto {
+export class TextToAudioDto {
     @IsString()    
     readonly prompt: string;
 
-    @IsInt()
+    @IsString()
     @IsOptional()
-    readonly maxTokens?: number;
+    readonly voice?: string;
 }
