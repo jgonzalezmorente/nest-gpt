@@ -3,7 +3,7 @@ import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFile
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { GptService } from './gpt.service';
-import { AudioToTextDto, OrthographyDto, ProsConsDiscusserDto, TextToAudioDto, TranslateDto } from './dtos';
+import { AudioToTextDto, ImageGenerationDto, ImageVariationDto, OrthographyDto, ProsConsDiscusserDto, TextToAudioDto, TranslateDto } from './dtos';
 
 @Controller('gpt')
 export class GptController {
@@ -45,7 +45,7 @@ export class GptController {
   translate(
     @Body() translateDto: TranslateDto
   ) {
-    return this.gptService.translateText( translateDto );
+    return this.gptService.translateText(translateDto);
   }
 
   @Post('text-to-audio')
@@ -53,18 +53,18 @@ export class GptController {
     @Body() textToAudioDto: TextToAudioDto,
     @Res() res: Response
   ) {
-    const filePath = await this.gptService.textToAudio( textToAudioDto );
+    const filePath = await this.gptService.textToAudio(textToAudioDto);
     res.setHeader('Content-Type', 'audio/mp3');
     res.status(HttpStatus.OK);
     res.sendFile(filePath);
   }
 
   @Get('text-to-audio/:fileId')
-  async textToAudioGetter(    
+  textToAudioGetter(    
     @Res() res: Response,
     @Param('fileId') fileId: string,
   ) {
-    const filePath = await this.gptService.textToAudioGetter( fileId );
+    const filePath = this.gptService.textToAudioGetter(fileId);
     res.setHeader('Content-Type', 'audio/mp3');
     res.status(HttpStatus.OK);
     res.sendFile(filePath);
@@ -116,4 +116,28 @@ export class GptController {
     return this.gptService.audioToText(file, audioToTextDto);
   }
 
+  @Post('image-generation')
+  async imageGeneration(
+    @Body() imageGenerationDto: ImageGenerationDto
+  ) {
+    return await this.gptService.imageGeneration(imageGenerationDto);
+  }
+
+  @Get('image-generation/:filename')
+  getGeneratedImage(
+    @Res() res: Response,
+    @Param('filename') filename: string,    
+  ) {
+    const filePath = this.gptService.imageGenerationGetter(filename);
+    res.setHeader('Content-Type', 'image/png');
+    res.status(HttpStatus.OK);
+    res.sendFile(filePath);
+  }
+
+  @Post('image-variation')
+  async imageVariation(
+    @Body() imageVariation: ImageVariationDto
+  ) {
+    return await this.gptService.generateImageVariation(imageVariation);
+  }  
 }

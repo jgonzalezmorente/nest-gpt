@@ -2,8 +2,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import OpenAI from 'openai';
-import { orthographyCheckUseCase, prosConsDiscusserStreamUseCase, prosConsDiscusserUseCase, translateUseCase, textToAudioUseCase, audioToTextUseCase } from './use-cases';
-import { OrthographyDto, TextToAudioDto, TranslateDto, ProsConsDiscusserDto, AudioToTextDto } from './dtos';
+import { orthographyCheckUseCase, prosConsDiscusserStreamUseCase, prosConsDiscusserUseCase, translateUseCase, textToAudioUseCase, audioToTextUseCase, imageGenerationUseCase, imageVariationUseCase } from './use-cases';
+import { OrthographyDto, TextToAudioDto, TranslateDto, ProsConsDiscusserDto, AudioToTextDto, ImageGenerationDto, ImageVariationDto } from './dtos';
 
 @Injectable()
 export class GptService {
@@ -38,7 +38,7 @@ export class GptService {
         return await textToAudioUseCase( this.openai, { prompt, voice });
     }
 
-    async textToAudioGetter(fileId: string) {
+    textToAudioGetter(fileId: string) {
         const filePath = path.resolve(__dirname, '../../generated/audios/', `${fileId}.mp3`);        
         const wasFound = fs.existsSync(filePath);
         if (!wasFound) throw new NotFoundException(`File ${ fileId } not found`);
@@ -50,4 +50,18 @@ export class GptService {
         return await audioToTextUseCase(this.openai, { audioFile, prompt });
     }
 
+    async imageGeneration(imageGenerationDto: ImageGenerationDto) {
+        return await imageGenerationUseCase(this.openai, { ...imageGenerationDto });
+    }
+
+    imageGenerationGetter(fileName: string) {
+        const filePath = path.resolve('./', './generated/images/', fileName);
+        const wasFound = fs.existsSync(filePath);
+        if (!wasFound) throw new NotFoundException(`File ${ fileName } not found`);
+        return filePath;
+    }
+
+    async generateImageVariation({ baseImage }: ImageVariationDto) {
+        return await imageVariationUseCase(this.openai, { baseImage });
+    }
 }
